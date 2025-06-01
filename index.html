@@ -1,106 +1,21 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>REVO 챗봇</title>
-  <style>
-    body {
-      font-family: "Arial", sans-serif;
-      background-color: #fff7f2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .chat-container {
-      width: 360px;
-      background-color: #ffffff;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      text-align: center;
-      color: #67b9c5;
-    }
-    .messages {
-      background-color: #f2faff;
-      border-radius: 12px;
-      padding: 10px;
-      height: 300px;
-      overflow-y: auto;
-      margin-bottom: 12px;
-    }
-    .message {
-      margin: 8px 0;
-      max-width: 70%;
-      padding: 6px 10px;
-      border-radius: 20px;
-    }
-    .user { background-color: #ffdede; align-self: flex-end; margin-left: auto; }
-    .bot { background-color: #d2f8d2; align-self: flex-start; margin-right: auto; }
-    .input-group {
-      display: flex;
-    }
-    input {
-      flex: 1;
-      border-radius: 18px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
-    button {
-      background-color: #67b9c5;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      margin-left: 8px;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div class="chat-container">
     <h1>REVO 챗봇</h1>
-    <div class="messages" id="messages"></div>
+    <div id="chat-box" class="chat-box"></div>
     <div class="input-group">
-      <input type="text" id="input" placeholder="무엇이 궁금한가요?" />
+      <input type="text" id="user-input" placeholder="무엇이 궁금한가요?" />
       <button onclick="sendMessage()">▶</button>
     </div>
   </div>
-  <script>
-    async function sendMessage() {
-      const input = document.getElementById("input");
-      const messages = document.getElementById("messages");
-
-      const text = input.value.trim();
-      if (!text) return;
-
-      const userDiv = document.createElement("div");
-      userDiv.className = "message user";
-      userDiv.innerText = text;
-      messages.appendChild(userDiv);
-
-      const botDiv = document.createElement("div");
-      botDiv.className = "message bot";
-      botDiv.innerText = "GPT 응답 중...";
-      messages.appendChild(botDiv);
-
-      input.value = "";
-
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text })
-      });
-
-      const data = await res.json();
-      botDiv.innerText = data.text || ("오류: " + data.error);
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
