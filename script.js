@@ -1,22 +1,26 @@
+document.getElementById("chat-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const input = document.getElementById("user-input");
+  const message = input.value;
+  input.value = "";
+  appendMessage("user", message);
+  appendMessage("bot", "GPT 응답 중...");
 
-async function sendMessage() {
-  const input = document.getElementById('user-input');
-  const chatBox = document.getElementById('chat-box');
-  const userMessage = input.value;
-  if (!userMessage) return;
-
-  chatBox.innerHTML += `<div class="user-message">${userMessage}</div>`;
-  input.value = '';
-  chatBox.innerHTML += `<div class="bot-message">GPT 응답 중...</div>`;
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  const response = await fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: userMessage }),
+  const response = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message })
   });
 
   const data = await response.json();
-  const messages = document.getElementsByClassName('bot-message');
-  messages[messages.length - 1].textContent = data.reply;
+  document.querySelectorAll(".bot").slice(-1)[0].textContent = data.answer;
+});
+
+function appendMessage(role, text) {
+  const chatBox = document.getElementById("chat-box");
+  const div = document.createElement("div");
+  div.className = role;
+  div.textContent = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }

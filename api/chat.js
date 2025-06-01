@@ -1,27 +1,29 @@
-export default async function handler(req, res) {
-  const { message } = req.body;
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req) {
+  const { message } = await req.json();
+
   const apiKey = process.env.OPENAI_API_KEY;
-
   if (!apiKey) {
-    return res.status(500).json({ text: "Missing API Key" });
+    return NextResponse.json({ error: "OpenAI API key not set" }, { status: 500 });
   }
 
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: message }],
-      }),
-    });
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: message }]
+    })
+  });
 
-    const data = await response.json();
-    res.status(200).json({ text: data.choices[0].message.content });
-  } catch (error) {
-    res.status(500).json({ text: "GPT 응답 오류" });
+  const data = await response.json();
+  if (!response.ok) {
+    return NextResponse.json({ error: data.error.message }, { status: 500 });
   }
+
+  return NextResponse.json({ text: data.choices[0].message.content });
 }

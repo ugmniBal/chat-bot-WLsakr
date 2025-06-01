@@ -6,8 +6,8 @@
   <title>REVO 챗봇</title>
   <style>
     body {
-      background-color: #fef6f2;
-      font-family: 'Arial Rounded MT Bold', 'Malgun Gothic', sans-serif;
+      font-family: "Arial", sans-serif;
+      background-color: #fff7f2;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -15,106 +15,91 @@
       margin: 0;
     }
     .chat-container {
-      background: white;
-      padding: 20px;
-      border-radius: 30px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       width: 360px;
-      max-width: 90%;
+      background-color: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     }
-    .chat-header {
+    h1 {
       text-align: center;
-      font-size: 1.6rem;
-      color: #66bfc5;
-      font-weight: bold;
-      margin-bottom: 10px;
+      color: #67b9c5;
     }
     .messages {
-      background: #f0f8ff;
+      background-color: #f2faff;
+      border-radius: 12px;
+      padding: 10px;
       height: 300px;
       overflow-y: auto;
+      margin-bottom: 12px;
+    }
+    .message {
+      margin: 8px 0;
+      max-width: 70%;
+      padding: 6px 10px;
       border-radius: 20px;
-      padding: 10px;
-      margin-bottom: 10px;
     }
-    .user, .gpt {
-      display: inline-block;
-      padding: 6px 12px;
-      margin: 6px;
-      border-radius: 15px;
-      font-size: 0.9rem;
-    }
-    .user {
-      background-color: #ffdede;
-      align-self: flex-end;
-    }
-    .gpt {
-      background-color: #d2fbd2;
-      align-self: flex-start;
-    }
-    .input-area {
+    .user { background-color: #ffdede; align-self: flex-end; margin-left: auto; }
+    .bot { background-color: #d2f8d2; align-self: flex-start; margin-right: auto; }
+    .input-group {
       display: flex;
     }
     input {
       flex: 1;
+      border-radius: 18px;
       padding: 10px;
-      border-radius: 20px;
       border: 1px solid #ccc;
-      font-size: 0.9rem;
+      outline: none;
     }
     button {
-      background-color: #66bfc5;
-      border: none;
+      background-color: #67b9c5;
       color: white;
+      border: none;
       border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      margin-left: 10px;
+      width: 36px;
+      height: 36px;
+      margin-left: 8px;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-header">REVO 챗봇</div>
+    <h1>REVO 챗봇</h1>
     <div class="messages" id="messages"></div>
-    <div class="input-area">
+    <div class="input-group">
       <input type="text" id="input" placeholder="무엇이 궁금한가요?" />
       <button onclick="sendMessage()">▶</button>
     </div>
   </div>
-
   <script>
     async function sendMessage() {
       const input = document.getElementById("input");
       const messages = document.getElementById("messages");
-      const userMsg = input.value;
-      if (!userMsg) return;
 
-      const userBubble = document.createElement("div");
-      userBubble.className = "user";
-      userBubble.innerText = userMsg;
-      messages.appendChild(userBubble);
+      const text = input.value.trim();
+      if (!text) return;
 
-      const gptBubble = document.createElement("div");
-      gptBubble.className = "gpt";
-      gptBubble.innerText = "GPT 응답 중...";
-      messages.appendChild(gptBubble);
+      const userDiv = document.createElement("div");
+      userDiv.className = "message user";
+      userDiv.innerText = text;
+      messages.appendChild(userDiv);
+
+      const botDiv = document.createElement("div");
+      botDiv.className = "message bot";
+      botDiv.innerText = "GPT 응답 중...";
+      messages.appendChild(botDiv);
 
       input.value = "";
-      messages.scrollTop = messages.scrollHeight;
 
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userMsg }),
-        });
-        const data = await res.json();
-        gptBubble.innerText = data.text || "응답 실패";
-      } catch (err) {
-        gptBubble.innerText = "GPT 응답 오류";
-      }
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text })
+      });
+
+      const data = await res.json();
+      botDiv.innerText = data.text || ("오류: " + data.error);
     }
   </script>
 </body>
