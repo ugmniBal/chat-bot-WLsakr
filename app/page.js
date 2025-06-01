@@ -1,107 +1,60 @@
-'use client'
+'use client';
 import { useState } from 'react';
 
 export default function Home() {
-  const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState('');
 
-  const handleSend = async () => {
+  const sendMessage = async () => {
     if (!input.trim()) return;
-
     const newMessages = [...messages, { type: 'user', text: input }];
     setMessages(newMessages);
     setInput('');
-    setLoading(true);
+    setMessages([...newMessages, { type: 'gpt', text: 'GPT 응답 중...' }]);
 
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input })
+        body: JSON.stringify({ message: input }),
       });
       const data = await res.json();
-      setMessages([...newMessages, { type: 'bot', text: data.reply }]);
+      setMessages([...newMessages, { type: 'gpt', text: data.response }]);
     } catch {
-      setMessages([...newMessages, { type: 'bot', text: 'GPT 응답 오류' }]);
-    } finally {
-      setLoading(false);
+      setMessages([...newMessages, { type: 'gpt', text: 'GPT 응답 오류' }]);
     }
   };
 
   return (
     <main style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      backgroundColor: '#fff6f2'
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      minHeight: '100vh', background: '#fff7f3', fontFamily: 'sans-serif'
     }}>
       <div style={{
-        width: 360,
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 20,
-        boxShadow: '0 0 15px rgba(0,0,0,0.05)'
+        background: 'white', padding: '20px', borderRadius: '20px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '400px'
       }}>
-        <h1 style={{ textAlign: 'center', color: '#60a5fa', fontWeight: 'bold', fontSize: 24 }}>REVO 챗봇</h1>
-        <div style={{
-          backgroundColor: '#f0faff',
-          borderRadius: 12,
-          padding: 10,
-          height: 300,
-          overflowY: 'auto',
-          marginTop: 16,
-          marginBottom: 10
-        }}>
-          {messages.map((m, i) => (
+        <h2 style={{ textAlign: 'center', color: '#68aebd' }}>REVO 챗봇</h2>
+        <div style={{ minHeight: '200px', padding: '10px', background: '#f0f8ff', borderRadius: '10px' }}>
+          {messages.map((msg, i) => (
             <div key={i} style={{
-              margin: '4px 0',
-              padding: '6px 12px',
-              borderRadius: 20,
-              backgroundColor: m.type === 'user' ? '#ffe4e6' : '#ccfbf1',
-              alignSelf: m.type === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '80%',
-              display: 'inline-block'
-            }}>
-              {m.text}
-            </div>
+              background: msg.type === 'user' ? '#ffcdd2' : '#c8facc',
+              padding: '6px 12px', margin: '4px 0',
+              display: 'inline-block', borderRadius: '12px'
+            }}>{msg.text}</div>
           ))}
-          {loading && (
-            <div style={{
-              backgroundColor: '#ccfbf1',
-              padding: '6px 12px',
-              borderRadius: 20,
-              display: 'inline-block',
-              maxWidth: '80%'
-            }}>
-              GPT 응답 중...
-            </div>
-          )}
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', marginTop: '10px' }}>
           <input
-            type="text"
-            placeholder="무엇이 궁금한가요?"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            style={{
-              flex: 1,
-              padding: '6px 12px',
-              borderRadius: 20,
-              border: '1px solid #ccc'
-            }}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && sendMessage()}
+            placeholder="무엇이 궁금한가요?"
+            style={{ flex: 1, padding: '10px', borderRadius: '12px 0 0 12px', border: '1px solid #ccc' }}
           />
-          <button onClick={handleSend} style={{
-            width: 36,
-            height: 36,
-            backgroundColor: '#7dd3fc',
-            borderRadius: '50%',
-            border: 'none',
-            color: 'white',
-            fontWeight: 'bold',
-            cursor: 'pointer'
+          <button onClick={sendMessage} style={{
+            padding: '0 20px', background: '#68aebd', color: 'white',
+            border: 'none', borderRadius: '0 12px 12px 0'
           }}>▶</button>
         </div>
       </div>
