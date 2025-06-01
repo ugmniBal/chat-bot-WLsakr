@@ -1,21 +1,121 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>REVO 챗봇</title>
-  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body {
+      background-color: #fef6f2;
+      font-family: 'Arial Rounded MT Bold', 'Malgun Gothic', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .chat-container {
+      background: white;
+      padding: 20px;
+      border-radius: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 360px;
+      max-width: 90%;
+    }
+    .chat-header {
+      text-align: center;
+      font-size: 1.6rem;
+      color: #66bfc5;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .messages {
+      background: #f0f8ff;
+      height: 300px;
+      overflow-y: auto;
+      border-radius: 20px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .user, .gpt {
+      display: inline-block;
+      padding: 6px 12px;
+      margin: 6px;
+      border-radius: 15px;
+      font-size: 0.9rem;
+    }
+    .user {
+      background-color: #ffdede;
+      align-self: flex-end;
+    }
+    .gpt {
+      background-color: #d2fbd2;
+      align-self: flex-start;
+    }
+    .input-area {
+      display: flex;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+    }
+    button {
+      background-color: #66bfc5;
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <div class="chat-container">
-    <h1>REVO 챗봇</h1>
-    <div id="chat-box" class="chat-box"></div>
-    <div class="input-group">
-      <input type="text" id="user-input" placeholder="무엇이 궁금한가요?" />
+    <div class="chat-header">REVO 챗봇</div>
+    <div class="messages" id="messages"></div>
+    <div class="input-area">
+      <input type="text" id="input" placeholder="무엇이 궁금한가요?" />
       <button onclick="sendMessage()">▶</button>
     </div>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("input");
+      const messages = document.getElementById("messages");
+      const userMsg = input.value;
+      if (!userMsg) return;
+
+      const userBubble = document.createElement("div");
+      userBubble.className = "user";
+      userBubble.innerText = userMsg;
+      messages.appendChild(userBubble);
+
+      const gptBubble = document.createElement("div");
+      gptBubble.className = "gpt";
+      gptBubble.innerText = "GPT 응답 중...";
+      messages.appendChild(gptBubble);
+
+      input.value = "";
+      messages.scrollTop = messages.scrollHeight;
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMsg }),
+        });
+        const data = await res.json();
+        gptBubble.innerText = data.text || "응답 실패";
+      } catch (err) {
+        gptBubble.innerText = "GPT 응답 오류";
+      }
+    }
+  </script>
 </body>
 </html>
